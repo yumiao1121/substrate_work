@@ -1,41 +1,85 @@
-use std::io::{Error, Read, Write};
-use std::net::{TcpListener, TcpStream};
-use std::thread;
-use std::time;
-
-fn handle_client(mut stream: TcpStream) -> Result<(), Error>{
-    let mut buf = [0; 512];
-    let bytes_read = stream.read(&mut buf)?;//读取消息到buf中
-    if bytes_read == 0 {
-        return Ok(());
-    }
-    println!("Request:{}",String::from_utf8_lossy(&buf[..]));//打印接收到的TCP消息内容
-    stream.write(&buf[..bytes_read])?; //将消息返回
-    thread::sleep(time::Duration::from_secs(1 as u64)); //等待1S
-    Ok(())
+/*-----------------------------------------work 1----------------------------------------------*/
+enum Light{
+    Red,
+    Yellow,
+    Green,
+} 
+pub trait SinceTime{
+    fn sintime(&self);
 }
 
-fn main() -> std::io::Result<()> {
-    let listener = TcpListener::bind("127.0.0.1:8080")?; //监听端口
-    let mut thread_vec: Vec<thread::JoinHandle<()>> = Vec::new(); 
+impl SinceTime for Light{
+    fn sintime(&self){
+        match self{
+            Light::Red => println!("60s"),
+            Light::Yellow => println!("40s"),
+            Light::Green => println!("120s"),
+        }
+    }
+}
+/*---------------------------------------------------------------------------------------------*/
 
-    for stream in listener.incoming() {
-      
-       
-        let stream: TcpStream = match stream{
-            Ok(stream) => stream,
-            Err(_) => panic!("err"),
+
+/*-----------------------------------------work 2----------------------------------------------*/
+fn SumUint(nums:&[u32]) -> Option<u32>{
+    let mut sum :u32 = 0;
+    for i in nums{
+        sum += i;
+        if (sum > std::u32::MAX){
+            return None
+        }else{
+            continue;
         };
-        let handle = thread::spawn(move || {
-            handle_client(stream)
-        .unwrap_or_else(|error| eprintln!("{:?}", error)); //创建协程，并且作错误处理
-        });
-
-        thread_vec.push(handle); //加入协程管理数组
     }
-
-    for handle in thread_vec {
-        handle.join().unwrap(); //等待关联的线程完成
-    }
-    Ok(())
+    Some(sum)
 }
+/*---------------------------------------------------------------------------------------------*/
+
+
+
+/*-----------------------------------------work 2----------------------------------------------*/
+struct Triangle {
+    width: f32,
+    height: f32,
+}
+
+struct Circular {
+    radius: f32,
+}
+
+struct Square {
+    len : f32,
+    wid : f32,
+}
+
+trait ComputeArea {
+    fn compute(&self) -> f32;
+}
+
+impl ComputeArea for Triangle{
+    fn compute(&self) -> f32{
+        (self.width * self.height)/2.0
+    }
+}
+
+impl ComputeArea for Circular{
+    fn compute(&self) -> f32{
+        3.14 * self.radius.powf(2.0)
+    }
+}
+
+impl ComputeArea for Square{
+    fn compute(&self) -> f32{
+        self.len * self.wid
+    }
+}
+
+fn ComputeSomeAre<T:ComputeArea>(k:T)->f32{
+    k.compute()
+}
+
+/*---------------------------------------------------------------------------------------------*/
+fn main() {
+
+}
+
